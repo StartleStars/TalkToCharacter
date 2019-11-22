@@ -1,17 +1,18 @@
 import gpt_2_simple as gpt2
 
-#Get the model loaded
-run_name='TalkToMiya2'
-sess = gpt2.start_tf_sess()
-gpt2.load_gpt2(sess,
-               run_name=run_name)
-
+run_name='sampledata' #the run_name you used in finetuning
 maxprefix = 20 #sets size of max prefix in number of previous lines
 tokensafterprefix = 50 #sets how many words to generate after the prefix
 defaultname = 'Character' #the spoken of the ai character in the training data
 defaultnametoken = 'CHARACTER - ' #the form of the ai's name when starting a line
 defaultuser = 'User' #the name of the user in the training data
 defaultusertoken = 'USER - ' #the form of the user's name when starting a line
+
+#Get the model loaded
+sess = gpt2.start_tf_sess()
+gpt2.load_gpt2(sess,
+               run_name=run_name)
+
 
 print('Welcome to TalkToCharacter')
 print('This program lets you talk to a finetuned AI that resembles a specific character')
