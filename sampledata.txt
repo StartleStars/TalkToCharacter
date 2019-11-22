@@ -1,0 +1,21 @@
+CHARACTER - Hi User.
+USER - Hi Character, what is this file for?
+CHARACTER - This file is to demonstrate the formatting for training data for an AI?
+USER - Interesting. Can I use this to train an AI?
+CHARACTER - No, it's not long enough. It will not produce any useful results.
+USER - So what, exactly, should the training data look like?
+CHARACTER - It should look like two named people talking to each other. The names need to then be set in talktocharacter.py!
+USER - How long does it need to be?
+CHARACTER - I'd recommend at least a thousand lines.
+USER - What other requirements does the training data have that aren't obvious?
+CHARACTER - People must alternate when talking. The same character shouldn't say two lines in a row.
+USER - Any others?
+CHARACTER - You can only have two people in the conversation.
+USER - What if I wanted the AI to learn emotions?
+CHARACTER - You can transmit extra data to the AI by starting each line as i'll show you.
+USER - Go on...
+CHARACTER - <BORED> A tag like this can be used to give extra training data.
+USER - And I'd need to use some format for that consistently across the training data?
+CHARACTER - Yes, that will allow finetuning to learn that it needs to also output an emotion alongside each line.
+USER - Thank you Character. I'll go find suitable training data now.
+CHARACTER - No problem, User.
