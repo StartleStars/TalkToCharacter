@@ -24,7 +24,6 @@ while True:
     playertext = input(playername.upper() + ' - ')
     playertext = defaultusertoken + playertext + '\n' #Make the program think player is the username
     previousmessages.append(playertext)
-    #prefix = previousmessages[-10]+'\n'+previousmessages[-9]+'\n'+previousmessages[-8]+'\n'+previousmessages[-7]+'\n'+previousmessages[-6]+'\n'+previousmessages[-5]+'\n'+previousmessages[-4]+'\n'+previousmessages[-3]+'\n'+previousmessages[-2]+'\n'+previousmessages[-1]+'\n'
     #Need code to handle stacking up to 10 previous messages
     if len(previousmessages) <= maxprefix:
         prefix = ''.join(previousmessages)
