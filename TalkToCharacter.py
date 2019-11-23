@@ -1,6 +1,20 @@
+#Start by suppressing warnings - end users do not need to see these
+import sys
+import warnings
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
+import logging
+logging.getLogger('tensorflow').disabled = True
+
+
 import gpt_2_simple as gpt2
 
-run_name='sampledata' #the run_name you used in finetuning
+#Get the model loaded
+run_name='sampledata'
+sess = gpt2.start_tf_sess()
+gpt2.load_gpt2(sess,
+               run_name=run_name)
+
 maxprefix = 20 #sets size of max prefix in number of previous lines
 tokensafterprefix = 50 #sets how many words to generate after the prefix
 defaultname = 'Character' #the spoken of the ai character in the training data
@@ -8,14 +22,15 @@ defaultnametoken = 'CHARACTER - ' #the form of the ai's name when starting a lin
 defaultuser = 'User' #the name of the user in the training data
 defaultusertoken = 'USER - ' #the form of the user's name when starting a line
 
-#Get the model loaded
-sess = gpt2.start_tf_sess()
-gpt2.load_gpt2(sess,
-               run_name=run_name)
-
-
 print('Welcome to TalkToCharacter')
 print('This program lets you talk to a finetuned AI that resembles a specific character')
+print('Please check the readme for usage guidelines')
+print('---')
+print('Configure the maximum prefix length')
+print('This decides how many previous lines of conversation the AI will think about')
+print('A larger number will give the AI better short term memory, but will take longer to respond')
+print('5 = fast, 10 = normal, 15 = slow, 20 = very slow')
+maxprefix = int(input('Please choose the maximum prefix length:'))
 playername = input('Please choose a name:')
 
 print(defaultnametoken + 'Hello ' + playername + '!')
