@@ -10,6 +10,7 @@ logging.getLogger('tensorflow').disabled = True
 import gpt_2_simple as gpt2
 
 #Get the model loaded
+print('Loading AI...')
 run_name='sampledata'
 sess = gpt2.start_tf_sess()
 gpt2.load_gpt2(sess,
