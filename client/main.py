@@ -38,100 +38,89 @@ print(_("CPU Checked"))
 #Check system RAM
 #INCOMPLETE
 
-#Find characters in directory
+#Find all character .ini files in directory
 import os
 availablecharacters = []
 for file in os.listdir("./characters"):
     if file.endswith(".ini"):
         availablecharacters.append(file)
+selectedcharacter = ""
 
 #Initialize Kivy
 from kivy.app import App
+from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
+from kivy.uix.recycleview import RecycleView
+from kivy.uix.recycleboxlayout import RecycleBoxLayout
+from kivy.uix.behaviors import FocusBehavior
+from kivy.uix.recycleview.layout import LayoutSelectionBehavior
+from kivy.uix.recycleview.views import RecycleDataViewBehavior
+from kivy.properties import BooleanProperty
+from kivy.properties import StringProperty
+
+#Put together character selection list
+#This is from the example here(https://kivy.org/doc/stable/api-kivy.uix.recycleview.html)
+#Except we use the list of available characters
+#And use the selection on the list to set the "selectedcharacter" variable
+
+class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior,
+                                 RecycleBoxLayout):
+    ''' Adds selection and focus behaviour to the view. '''
+
+
+class SelectableLabel(RecycleDataViewBehavior, Label):
+    ''' Add selection support to the Label '''
+    index = None
+    selected = BooleanProperty(False)
+    selectable = BooleanProperty(True)
+
+    def refresh_view_attrs(self, rv, index, data):
+        ''' Catch and handle the view changes '''
+        self.index = index
+        return super(SelectableLabel, self).refresh_view_attrs(
+            rv, index, data)
+
+    def on_touch_down(self, touch):
+        ''' Add selection on touch down '''
+        if super(SelectableLabel, self).on_touch_down(touch):
+            return True
+        if self.collide_point(*touch.pos) and self.selectable:
+            return self.parent.select_with_touch(self.index, touch)
+
+    def apply_selection(self, rv, index, is_selected):
+        ''' Respond to the selection of items in the view. '''
+        self.selected = is_selected
+        if is_selected:
+            print("selection changed to {0}".format(rv.data[index]))
+            App.get_running_app().selectedcharacter = rv.characterfile[index]
+            App.get_running_app().bio_characterbio = rv.characterfile[index]
+        else:
+            print("selection removed for {0}".format(rv.data[index]))
+
+class CharacterList(RecycleView):
+    def __init__(self, **kwargs):
+        super(CharacterList, self).__init__(**kwargs)
+        self.data = [{'text': str(x[:-4])} for x in availablecharacters] #set label to be file names without .ini
+        self.characterfile = availablecharacters
+
+#Put together the Main Menu
 
 class MainMenu(App):
-    def build(self):
-        layout = BoxLayout(padding=10,
-                           orientation = 'horizontal')
-        #build the left side
-        left_side = BoxLayout(padding=10,
-                              orientation = 'vertical',
-                              size_hint = (.3, 1))
-        layout.add_widget(left_side)
-        #build the left hand side's top bar
-        left_side_top = BoxLayout(size_hint = (1, .1))
-        left_side.add_widget(left_side_top)
-        top_button = Button(text=_('Menu'),
-                            background_color = [1,0,0,1],
-                            size_hint = (0.2,1))
-        left_side_top.add_widget(top_button)
-        top_label = Label(text=_('TalkToCharacter'),
-                          size_hint = (0.8,1))
-        left_side_top.add_widget(top_label)
-        #build the character select
-        character_selection = Label(text=_('Character Selection'),
-                                    size_hint=(1, .7))
-        left_side.add_widget(character_selection)
-        #build the "open character directory" button
-        character_directory = Button(text=_("Open Character Folder"),
-                                     background_color = [1,0,0,1],
-                                     size_hint =(1, .1))
-        left_side.add_widget(character_directory)
-        #build the "download characters" button
-        character_download = Button(text=_("Download More Characters"),
-                                     background_color = [1,0,0,1],
-                                     size_hint =(1, .1))
-        left_side.add_widget(character_download)
-        #build the right side
-        right_side = BoxLayout(padding=10,
-                               orientation = 'vertical',
-                               size_hint = (.7, 1))
-        layout.add_widget(right_side)
-        #build the feed
-        feed_window = Label(text=_('News Feed'),
-                            size_hint = (1, .3))
-        right_side.add_widget(feed_window)
-        #build character info
-        character_info = BoxLayout(padding=10,
-                                   orientation = 'horizontal',
-                                   size_hint = (1, .7))
-        right_side.add_widget(character_info)
-        #build left side of character info
-        character_left = BoxLayout(padding=10,
-                                   orientation = 'vertical',
-                                   size_hint = (.4, 1))
-        character_info.add_widget(character_left)
-        #build image of character
-        character_image = Image(source='./example.png',
-                                size_hint=(1, .4))
-        character_left.add_widget(character_image)
-        #build technical details
-        character_technical = Label(text=_('Technical Details'),
-                                    size_hint=(1,.4))
-        character_left.add_widget(character_technical)
-        #build settings button
-        settings_button = Button(text=_("Settings"),
-                                 background_color = [1,0,0,1],
-                                 size_hint=(1,.2))
-        character_left.add_widget(settings_button)
-        #build right side of character info
-        character_right = BoxLayout(padding=10,
-                                    orientation = 'vertical',
-                                    size_hint = (.6, 1))
-        character_info.add_widget(character_right)
-        #build character bio
-        character_bio = Label(text=_('Character Bio'),
-                              size_hint = (1, .8))
-        character_right.add_widget(character_bio)
-        #build start button
-        start_button = Button(text=_("Start Chat"),
-                              background_color = [1,0,0,1],
-                              size_hint=(1, .2))
-        character_right.add_widget(start_button)
-        return layout
+    #get locale strings for all text
+    locale_menu = StringProperty(_('Menu'))
+    locale_appname = StringProperty(_('TalkToCharacter'))
+    locale_charfolder = StringProperty(_('Open Character Folder'))
+    locale_chardownload = StringProperty(_('Download Characters'))
+    locale_feed = StringProperty(_('News Feed'))
+    locale_technical = StringProperty(_('Technical Details'))
+    locale_settings = StringProperty(_('Settings'))
+    locale_start = StringProperty(_('Start Chat'))
+    bio_imagesource = StringProperty('./example.png')
+    bio_characterbio = StringProperty(_('Character Bio'))
+    pass
 
 if __name__ == '__main__':
     app = MainMenu()
