@@ -72,6 +72,10 @@ BoxLayout:
 					size_hint: 1, .8
 					Label:
 						text: app.bio_characterbio
+						#need to bind label size to text size
+						text_size: self.width, None
+						size_hint_y: None
+						height: self.texture_size[1]
 				#Start Button
 				Button:
 					text: app.locale_start

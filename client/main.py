@@ -46,6 +46,17 @@ for file in os.listdir("./characters"):
         availablecharacters.append(file)
 selectedcharacter = ""
 
+#Create function to retrieve info from a .ini file
+def GetCharacterIni(configname):
+    config = ConfigParser()
+    config.read("./characters/"+configname)
+    dictionary = {}
+    for section in config.sections():
+        dictionary[section] = {}
+        for option in config.options(section):
+            dictionary[section][option] = config.get(section, option)
+    return dictionary
+
 #Initialize Kivy
 from kivy.app import App
 from kivy.lang import Builder
@@ -60,6 +71,7 @@ from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.properties import BooleanProperty
 from kivy.properties import StringProperty
+from kivy.uix.scrollview import ScrollView
 
 #Put together character selection list
 #This is from the example here(https://kivy.org/doc/stable/api-kivy.uix.recycleview.html)
@@ -96,7 +108,10 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
         if is_selected:
             print("selection changed to {0}".format(rv.data[index]))
             App.get_running_app().selectedcharacter = rv.characterfile[index]
-            App.get_running_app().bio_characterbio = rv.characterfile[index]
+            #we need to update all the bio information from the .ini
+            dictionary = GetCharacterIni(rv.characterfile[index])
+            App.get_running_app().bio_characterbio = dictionary["bio"]["bio"]
+            App.get_running_app().bio_imagesource = "./characters/" + dictionary["technical"]["characterfolder"]+"/"+dictionary["bio"]["image"]
         else:
             print("selection removed for {0}".format(rv.data[index]))
 
