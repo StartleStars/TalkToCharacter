@@ -1,0 +1,123 @@
+ScreenManager:
+	id: screen_manager
+	MenuScreen:
+		id: menu_screen
+		name: 'menu'
+		manager: 'screen_manager'
+	ChatScreen:
+		id: chat_screen
+		name: 'chat'
+		manager: 'screen_manager'
+
+<MenuScreen>:
+	BoxLayout:
+		padding:10
+		orientation: 'horizontal'
+		#left hand side
+		BoxLayout:
+			padding:10
+			orientation:'vertical'
+			size_hint: .3, 1
+			#top menu
+			BoxLayout:
+				orientation:'horizontal'
+				size_hint: 1, .1
+				Button:
+					text: app.locale_menu
+					background_color: 1,0,0,1
+					size_hint: 0.2, 1
+				Label:
+					text: app.locale_appname
+					size_hint: 0.8, 1
+			CharacterList:
+			#Open character folder
+			Button:
+				text: app.locale_charfolder
+				background_color: 1,0,0,1
+				size_hint: 1, .1
+				#call function from the app
+				on_release: app.open_folder("characters")
+			#Character download
+			Button:
+				text: app.locale_chardownload
+				background_color: 1,0,0,1
+				size_hint: 1, .1
+		#right hand side
+		BoxLayout:
+			padding:10
+			orientation:'vertical'
+			size_hint: .7, 1
+			#feed
+			Label:
+				text: app.locale_feed
+				size_hint: 1, .4
+			#Character Info
+			BoxLayout:
+				padding:10
+				orientation:'horizontal'
+				size_hint: 1, .7
+				#Left side of Character Info
+				BoxLayout:
+					padding:10
+					orientation:'vertical'
+					size_hint: .4, 1
+					#Image of Character
+					Image:
+						source: app.bio_imagesource
+						size_hint: 1, .4
+					#Technical Details goes inside a scrollview
+					ScrollView:
+						do_scroll_x: False
+						do_scroll_y: True
+						size_hint: 1, .4
+						Label:
+							text: app.bio_technical
+							#need to bind label size to text size
+							text_size: self.width, None
+							size_hint_y: None
+							height: self.texture_size[1]
+					#Setting Button
+					Button:
+						text: app.locale_settings
+						background_color: 1,0,0,1
+						size_hint: 1, .2
+				#Right side of Character Info
+				BoxLayout:
+					padding:10
+					orientation:'vertical'
+					size_hint: .6, 1
+					#Character bio goes inside a scrollview
+					ScrollView:
+						do_scroll_x: False
+						do_scroll_y: True
+						size_hint: 1, .8
+						Label:
+							text: app.bio_characterbio
+							#need to bind label size to text size
+							text_size: self.width, None
+							size_hint_y: None
+							height: self.texture_size[1]
+					#Start Button
+					Button:
+						text: app.locale_start
+						background_color: 1,0,0,1
+						size_hint: 1, .2
+			
+<SelectableLabel>:
+    #Draw a background to indicate selection
+    canvas.before:
+        Color:
+            rgba: (.0, 0.9, .1, .3) if self.selected else (0, 0, 0, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+<CharacterList>:
+    viewclass: 'SelectableLabel'
+    SelectableRecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        multiselect: False
+        touch_multiselect: False

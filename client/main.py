@@ -75,6 +75,7 @@ from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.properties import BooleanProperty
 from kivy.properties import StringProperty
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 #Put together character selection list
 #This is from the example here(https://kivy.org/doc/stable/api-kivy.uix.recycleview.html)
@@ -126,9 +127,14 @@ class CharacterList(RecycleView):
         self.data = [{'text': str(x[:-4])} for x in availablecharacters] #set label to be file names without .ini
         self.characterfile = availablecharacters
 
-#Put together the Main Menu
+#Put together the Menu
+class MenuScreen(Screen):
+    pass
 
-class MainMenu(App):
+class ChatScreen(Screen):
+    pass
+
+class MainApp(App):
     #get locale strings for all text
     locale_menu = StringProperty(_('Menu'))
     locale_appname = StringProperty(_('TalkToCharacter'))
@@ -156,5 +162,4 @@ class MainMenu(App):
     pass
 
 if __name__ == '__main__':
-    app = MainMenu()
-    app.run()
+    MainApp().run()
