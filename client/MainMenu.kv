@@ -65,10 +65,13 @@ BoxLayout:
 				padding:10
 				orientation:'vertical'
 				size_hint: .6, 1
-				#Character bio
-				Label:
-					text: app.bio_characterbio
+				#Character bio goes inside a scrollview
+				ScrollView:
+					do_scroll_x: False
+					do_scroll_y: True
 					size_hint: 1, .8
+					Label:
+						text: app.bio_characterbio
 				#Start Button
 				Button:
 					text: app.locale_start
