@@ -18,11 +18,13 @@ BoxLayout:
 				text: app.locale_appname
 				size_hint: 0.8, 1
 		CharacterList:
-		#Open download folder
+		#Open character folder
 		Button:
 			text: app.locale_charfolder
 			background_color: 1,0,0,1
 			size_hint: 1, .1
+			#call function from the app
+			on_release: app.open_folder("characters")
 		#Character download
 		Button:
 			text: app.locale_chardownload
@@ -51,10 +53,17 @@ BoxLayout:
 				Image:
 					source: app.bio_imagesource
 					size_hint: 1, .4
-				#Technical Details
-				Label:
-					text: app.locale_technical
+				#Technical Details goes inside a scrollview
+				ScrollView:
+					do_scroll_x: False
+					do_scroll_y: True
 					size_hint: 1, .4
+					Label:
+						text: app.bio_technical
+						#need to bind label size to text size
+						text_size: self.width, None
+						size_hint_y: None
+						height: self.texture_size[1]
 				#Setting Button
 				Button:
 					text: app.locale_settings

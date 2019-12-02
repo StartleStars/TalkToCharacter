@@ -1,3 +1,6 @@
+import platform
+import subprocess
+
 #Initialize config
 from configparser import ConfigParser
 config = ConfigParser()
@@ -46,7 +49,7 @@ for file in os.listdir("./characters"):
         availablecharacters.append(file)
 selectedcharacter = ""
 
-#Create function to retrieve info from a .ini file
+#function to retrieve info from a .ini file
 def GetCharacterIni(configname):
     config = ConfigParser()
     config.read("./characters/"+configname)
@@ -112,6 +115,8 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
             dictionary = GetCharacterIni(rv.characterfile[index])
             App.get_running_app().bio_characterbio = dictionary["bio"]["bio"]
             App.get_running_app().bio_imagesource = "./characters/" + dictionary["technical"]["characterfolder"]+"/"+dictionary["bio"]["image"]
+            #put together technical details
+            App.get_running_app().bio_technical = "Version: " + dictionary["techinfo"]["version"] + "\nModel: " + dictionary["techinfo"]["modeltype"]
         else:
             print("selection removed for {0}".format(rv.data[index]))
 
@@ -130,11 +135,21 @@ class MainMenu(App):
     locale_charfolder = StringProperty(_('Open Character Folder'))
     locale_chardownload = StringProperty(_('Download Characters'))
     locale_feed = StringProperty(_('News Feed'))
-    locale_technical = StringProperty(_('Technical Details'))
     locale_settings = StringProperty(_('Settings'))
     locale_start = StringProperty(_('Start Chat'))
     bio_imagesource = StringProperty('./example.png')
     bio_characterbio = StringProperty(_('Character Bio'))
+    bio_technical = StringProperty(_('Technical Details'))
+
+    #function to open a specific folder in explorer or cross-platform equivalent
+    def open_folder(self, path):
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+
     pass
 
 if __name__ == '__main__':
