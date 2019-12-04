@@ -155,6 +155,7 @@ class ChatScreen(Screen):
             dictionary = GetCharacterIni(App.get_running_app().selectedcharacter)
             #these files are huge so need seperate thread to load
             #otherwise windows will think the application is not responding
+            #UNFINISHED - NEED TO RESEARCH HOW TO DO THIS
             App.get_running_app().session = LoadModel(dictionary["technical"]["characterfolder"])
             App.get_running_app().chat_history = dictionary["bio"]["charactername"] + _(' has been loaded.')
             #we don't want to reload the same character twice in a row
