@@ -102,7 +102,64 @@ ScreenManager:
 						text: app.locale_start
 						background_color: 1,0,0,1
 						size_hint: 1, .2
-			
+						#change screen to chat
+						#screen manager is the parent of the current root - MenuScreen
+						on_press: 
+							root.parent.transition.direction = 'left'
+							root.parent.current = 'chat'
+
+<ChatScreen>
+	BoxLayout:
+		padding:10
+		orientation:'vertical'
+		#Chat History
+		ScrollView:
+			do_scroll_x: False
+			do_scroll_y: True
+			size_hint: 1, .9
+			Label:
+				text: app.chat_history
+				#need to bind label size to text size
+				text_size: self.width, None
+				size_hint_y: None
+				height: self.texture_size[1]
+		#Inputs
+		BoxLayout:
+			padding:10
+			orientation:'horizontal'
+			size_hint: 1, .1
+			#Text input
+			TextInput:
+				text: app.chat_input
+				multiline: False
+				size_hint: .6, 1
+			#Alternative to pressing enter
+			Button:
+				text: app.locale_send
+				background_color: 1,0,0,1
+				size_hint: .1, 1
+			#Redo Message
+			Button:
+				text: app.locale_redo
+				background_color: 1,0,0,1
+				size_hint: .1, 1
+			#Access settings from 
+			Button:
+				text: app.locale_settings
+				background_color: 1,0,0,1
+				size_hint: .1, 1
+			#Go back to menu
+			Button:
+				text: app.locale_back
+				background_color: 1,0,0,1
+				size_hint: .1, 1
+				#change screen to menu
+				#screen manager is the parent of the current root - ChatScreen
+				on_press: 
+					root.parent.transition.direction = 'right'
+					root.parent.current = 'menu'
+				
+							
 <SelectableLabel>:
     #Draw a background to indicate selection
     canvas.before:

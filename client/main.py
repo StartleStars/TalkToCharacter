@@ -76,6 +76,7 @@ from kivy.properties import BooleanProperty
 from kivy.properties import StringProperty
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.textinput import TextInput
 
 #Put together character selection list
 #This is from the example here(https://kivy.org/doc/stable/api-kivy.uix.recycleview.html)
@@ -143,10 +144,15 @@ class MainApp(App):
     locale_feed = StringProperty(_('News Feed'))
     locale_settings = StringProperty(_('Settings'))
     locale_start = StringProperty(_('Start Chat'))
+    locale_send = StringProperty(_('Send'))
+    locale_redo = StringProperty(_('Redo'))
+    locale_back = StringProperty(_('Back'))
     bio_imagesource = StringProperty('./example.png')
     bio_characterbio = StringProperty(_('Character Bio'))
     bio_technical = StringProperty(_('Technical Details'))
-
+    chat_history = StringProperty(_('Text'))
+    chat_input = StringProperty(_('Message Area'))
+    
     #function to open a specific folder in explorer or cross-platform equivalent
     def open_folder(self, path):
         if platform.system() == "Windows":
