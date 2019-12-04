@@ -74,9 +74,22 @@ from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.properties import BooleanProperty
 from kivy.properties import StringProperty
+from kivy.properties import ObjectProperty
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.textinput import TextInput
+
+#import GPT2
+#this MUST be imported after Kivy. See https://github.com/tensorflow/tensorflow/issues/27312
+import gpt_2_simple as gpt2
+
+#function to load a model
+def LoadModel(modelname):
+    sess = gpt2.start_tf_sess()
+    gpt2.load_gpt2(sess,
+                   checkpoint_dir="characters",
+                   run_name=modelname)
+    return sess
 
 #Put together character selection list
 #This is from the example here(https://kivy.org/doc/stable/api-kivy.uix.recycleview.html)
@@ -133,6 +146,19 @@ class MenuScreen(Screen):
     pass
 
 class ChatScreen(Screen):
+    def on_enter(self):
+        #check if we need to load a character
+        if App.get_running_app().selectedcharacter != App.get_running_app().loadedcharacter:
+            #prepare to load character
+            App.get_running_app().chat_history = _('Loading Character, this may take a while...')
+            #we need to get info about the character from the ini
+            dictionary = GetCharacterIni(App.get_running_app().selectedcharacter)
+            #these files are huge so need seperate thread to load
+            #otherwise windows will think the application is not responding
+            App.get_running_app().session = LoadModel(dictionary["technical"]["characterfolder"])
+            App.get_running_app().chat_history = dictionary["bio"]["charactername"] + _(' has been loaded.')
+            #we don't want to reload the same character twice in a row
+            App.get_running_app().loadedcharacter = App.get_running_app().selectedcharacter
     pass
 
 class MainApp(App):
@@ -152,6 +178,9 @@ class MainApp(App):
     bio_technical = StringProperty(_('Technical Details'))
     chat_history = StringProperty(_('Text'))
     chat_input = StringProperty(_('Message Area'))
+    selectedcharacter = StringProperty(_('None'))
+    loadedcharacter = StringProperty(_('None'))
+    session = ObjectProperty(_(None))
     
     #function to open a specific folder in explorer or cross-platform equivalent
     def open_folder(self, path):
