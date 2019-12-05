@@ -92,6 +92,17 @@ def LoadModel(modelname):
                    run_name=modelname)
     return sess
 
+def GenerateLine(run_name,prefix,length,temperature):
+    sess = App.get_running_app().session
+    return gpt2.generate(sess,
+                         checkpoint_dir="characters",
+                         run_name=run_name,
+                         prefix=prefix,
+                         length=length,
+                         temperature=temperature,
+                         return_as_list=True
+                         )[0]
+
 #Put together character selection list
 #This is from the example here(https://kivy.org/doc/stable/api-kivy.uix.recycleview.html)
 #Except we use the list of available characters
@@ -173,11 +184,14 @@ class ChatScreen(Screen):
     def generate_response(self, playerline):
         #ensure a blank line hasn't been sent
         if playerline != '':
+            #Clear the player's input now that we've recieved it
+            App.get_running_app().chat_input = ''
             #TEMPORARY HARDCODED SETTINGS
             maxprefix = 10
             tokensafterprefix = 50
             temperature = 0.7
             #END OF TEMPORARY HARDCODED SETTINGS
+            #Need to get dictionary containing the character .ini
             dictionary = App.get_running_app().dictionary
             #Update chat history
             messageline = dictionary["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
@@ -186,6 +200,36 @@ class ChatScreen(Screen):
             #Make the program think player is the username
             prefixline = dictionary["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
             App.get_running_app().prefixhistory.append(prefixline)
+            #stack together previous lines to generate the prefix
+            if len(App.get_running_app().prefixhistory) <= maxprefix:
+                prefix = ''.join(App.get_running_app().prefixhistory)
+                prefixlinecount = len(App.get_running_app().prefixhistory)
+            else:
+                prefix = ''.join(App.get_running_app().prefixhistory[-maxprefix:])
+                prefixlinecount = maxprefix
+            #debug contents of prefix
+            print(prefix)
+            #how long does output need to be?
+            length = len(prefix.split()) + tokensafterprefix
+            #prepare to generate
+            success = 0
+            while success == 0:
+                aitext = GenerateLine(dictionary["technical"]["characterfolder"],prefix,length,temperature)
+                #Split output into individual lines
+                aitext = aitext.splitlines()
+                #Chop off the prefix
+                aitext = aitext[prefixlinecount:]
+                #Fetch the lines where AI speaks
+                aitext = [i for i in aitext if i.startswith(dictionary["technical"]["defaultnametoken"])]
+                #If there is at least one appropriate line, this works
+                if len(aitext) > 0:
+                    success = 1
+                    #Use the first reply, most likely to be appropriate
+                    aitext = aitext[0]
+                    App.get_running_app().prefixhistory.append(aitext + '\n')
+                    App.get_running_app().messagehistory.append(aitext + '\n')
+            #Update chat history
+            App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
         pass
     pass
 
