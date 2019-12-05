@@ -75,6 +75,7 @@ from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.properties import BooleanProperty
 from kivy.properties import StringProperty
 from kivy.properties import ObjectProperty
+from kivy.properties import ListProperty
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.textinput import TextInput
@@ -153,13 +154,39 @@ class ChatScreen(Screen):
             App.get_running_app().chat_history = _('Loading Character, this may take a while...')
             #we need to get info about the character from the ini
             dictionary = GetCharacterIni(App.get_running_app().selectedcharacter)
+            #save this for later
+            App.get_running_app().dictionary = dictionary
             #these files are huge so need seperate thread to load
             #otherwise windows will think the application is not responding
             #UNFINISHED - NEED TO RESEARCH HOW TO DO THIS
             App.get_running_app().session = LoadModel(dictionary["technical"]["characterfolder"])
-            App.get_running_app().chat_history = dictionary["bio"]["charactername"] + _(' has been loaded.')
+            #App.get_running_app().chat_history = dictionary["bio"]["charactername"] + _(' has been loaded.')
             #we don't want to reload the same character twice in a row
             App.get_running_app().loadedcharacter = App.get_running_app().selectedcharacter
+            #setup prefix and message history
+            App.get_running_app().messagehistory.append(dictionary["bio"]["charactername"] + _(' has been loaded.\n'))
+            App.get_running_app().messagehistory.append(dictionary["technical"]["defaultnametoken"] + ' Hello ' + dictionary["technical"]["defaultuser"] + '!\n')
+            App.get_running_app().prefixhistory.append(dictionary["technical"]["defaultnametoken"] + ' Hello ' + dictionary["technical"]["defaultuser"] + '!\n')
+            #Display initial text
+            App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
+
+    def generate_response(self, playerline):
+        #ensure a blank line hasn't been sent
+        if playerline != '':
+            #TEMPORARY HARDCODED SETTINGS
+            maxprefix = 10
+            tokensafterprefix = 50
+            temperature = 0.7
+            #END OF TEMPORARY HARDCODED SETTINGS
+            dictionary = App.get_running_app().dictionary
+            #Update chat history
+            messageline = dictionary["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
+            App.get_running_app().messagehistory.append(messageline)
+            App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
+            #Make the program think player is the username
+            prefixline = dictionary["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
+            App.get_running_app().prefixhistory.append(prefixline)
+        pass
     pass
 
 class MainApp(App):
@@ -181,7 +208,10 @@ class MainApp(App):
     chat_input = StringProperty(_('Message Area'))
     selectedcharacter = StringProperty(_('None'))
     loadedcharacter = StringProperty(_('None'))
-    session = ObjectProperty(_(None))
+    session = ObjectProperty(None)
+    prefixhistory = []
+    messagehistory = []
+    dictionary = {}
     
     #function to open a specific folder in explorer or cross-platform equivalent
     def open_folder(self, path):

@@ -133,6 +133,8 @@ ScreenManager:
 				text: app.chat_input
 				multiline: False
 				size_hint: .6, 1
+				on_text_validate:
+					root.generate_response(self.text)
 			#Alternative to pressing enter
 			Button:
 				text: app.locale_send
