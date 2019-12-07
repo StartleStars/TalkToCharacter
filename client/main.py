@@ -164,20 +164,20 @@ class ChatScreen(Screen):
             #prepare to load character
             App.get_running_app().chat_history = _('Loading Character, this may take a while...')
             #we need to get info about the character from the ini
-            dictionary = GetCharacterIni(App.get_running_app().selectedcharacter)
+            characterini = GetCharacterIni(App.get_running_app().selectedcharacter)
             #save this for later
-            App.get_running_app().dictionary = dictionary
+            App.get_running_app().characterini = characterini
             #these files are huge so need seperate thread to load
             #otherwise windows will think the application is not responding
             #UNFINISHED - NEED TO RESEARCH HOW TO DO THIS
-            App.get_running_app().session = LoadModel(dictionary["technical"]["characterfolder"])
-            #App.get_running_app().chat_history = dictionary["bio"]["charactername"] + _(' has been loaded.')
+            App.get_running_app().session = LoadModel(characterini["technical"]["characterfolder"])
+            #App.get_running_app().chat_history = characterini["bio"]["charactername"] + _(' has been loaded.')
             #we don't want to reload the same character twice in a row
             App.get_running_app().loadedcharacter = App.get_running_app().selectedcharacter
             #setup prefix and message history
-            App.get_running_app().messagehistory.append(dictionary["bio"]["charactername"] + _(' has been loaded.\n'))
-            App.get_running_app().messagehistory.append(dictionary["technical"]["defaultnametoken"] + ' Hello ' + dictionary["technical"]["defaultuser"] + '!\n')
-            App.get_running_app().prefixhistory.append(dictionary["technical"]["defaultnametoken"] + ' Hello ' + dictionary["technical"]["defaultuser"] + '!\n')
+            App.get_running_app().messagehistory.append(characterini["bio"]["charactername"] + _(' has been loaded.\n'))
+            App.get_running_app().messagehistory.append(characterini["technical"]["defaultnametoken"] + ' Hello ' + characterini["technical"]["defaultuser"] + '!\n')
+            App.get_running_app().prefixhistory.append(characterini["technical"]["defaultnametoken"] + ' Hello ' + characterini["technical"]["defaultuser"] + '!\n')
             #Display initial text
             App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
 
@@ -192,13 +192,13 @@ class ChatScreen(Screen):
             temperature = 0.7
             #END OF TEMPORARY HARDCODED SETTINGS
             #Need to get dictionary containing the character .ini
-            dictionary = App.get_running_app().dictionary
+            characterini = App.get_running_app().characterini
             #Update chat history
-            messageline = dictionary["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
+            messageline = characterini["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
             App.get_running_app().messagehistory.append(messageline)
             App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
             #Make the program think player is the username
-            prefixline = dictionary["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
+            prefixline = characterini["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
             App.get_running_app().prefixhistory.append(prefixline)
             #stack together previous lines to generate the prefix
             if len(App.get_running_app().prefixhistory) <= maxprefix:
@@ -208,19 +208,21 @@ class ChatScreen(Screen):
                 prefix = ''.join(App.get_running_app().prefixhistory[-maxprefix:])
                 prefixlinecount = maxprefix
             #debug contents of prefix
-            print(prefix)
+            print('Prefix:\n' + prefix)
             #how long does output need to be?
             length = len(prefix.split()) + tokensafterprefix
             #prepare to generate
             success = 0
             while success == 0:
-                aitext = GenerateLine(dictionary["technical"]["characterfolder"],prefix,length,temperature)
+                aitext = GenerateLine(characterini["technical"]["characterfolder"],prefix,length,temperature)
+                #debug contents of generated text
+                print('Generated text:\n' + aitext)
                 #Split output into individual lines
                 aitext = aitext.splitlines()
                 #Chop off the prefix
                 aitext = aitext[prefixlinecount:]
                 #Fetch the lines where AI speaks
-                aitext = [i for i in aitext if i.startswith(dictionary["technical"]["defaultnametoken"])]
+                aitext = [i for i in aitext if i.startswith(characterini["technical"]["defaultnametoken"])]
                 #If there is at least one appropriate line, this works
                 if len(aitext) > 0:
                     success = 1
@@ -255,7 +257,7 @@ class MainApp(App):
     session = ObjectProperty(None)
     prefixhistory = []
     messagehistory = []
-    dictionary = {}
+    characterini = {}
     
     #function to open a specific folder in explorer or cross-platform equivalent
     def open_folder(self, path):
