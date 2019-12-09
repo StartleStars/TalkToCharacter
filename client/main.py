@@ -4,12 +4,8 @@ import subprocess
 #Initialize config
 from configparser import ConfigParser
 config = ConfigParser()
-config.read('config.ini')
+config.read('main.ini')
 
-username = config.get('user','username')
-maxprefix = config.get('ai','maxprefix')
-tokensafterprefix = config.get('ai','tokensafterprefix')
-temperature = config.get('ai','temperature')
 lang = config.get('language','language')
 debug = config.getboolean('debugging','debug')
 requires_avx = config.getboolean('dependencies','requires_avx')
@@ -50,6 +46,7 @@ for file in os.listdir("./characters"):
 selectedcharacter = ""
 
 #function to retrieve info from a .ini file
+#this should be changed to just keep a configparser object instead of converting to dictionary
 def GetCharacterIni(configname):
     config = ConfigParser()
     config.read("./characters/"+configname)
@@ -186,11 +183,9 @@ class ChatScreen(Screen):
         if playerline != '':
             #Clear the player's input now that we've recieved it
             App.get_running_app().chat_input = ''
-            #TEMPORARY HARDCODED SETTINGS
-            maxprefix = 10
-            tokensafterprefix = 50
-            temperature = 0.7
-            #END OF TEMPORARY HARDCODED SETTINGS
+            maxprefix = config.getint('generate','maxprefix')
+            tokensafterprefix = config.getint('generate','tokensafterprefix')
+            temperature = config.getfloat('generate','temperature')
             #Need to get dictionary containing the character .ini
             characterini = App.get_running_app().characterini
             #Update chat history
@@ -258,6 +253,9 @@ class MainApp(App):
     prefixhistory = []
     messagehistory = []
     characterini = {}
+
+    def build(self):
+        config = self.config
     
     #function to open a specific folder in explorer or cross-platform equivalent
     def open_folder(self, path):
