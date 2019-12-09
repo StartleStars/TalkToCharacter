@@ -24,7 +24,7 @@ ScreenManager:
 				size_hint: 1, .1
 				Button:
 					text: app.locale_menu
-					background_color: 1,0,0,1
+					background_color: .5,.5,.5,1
 					size_hint: 0.2, 1
 				Label:
 					text: app.locale_appname
@@ -40,7 +40,7 @@ ScreenManager:
 			#Character download
 			Button:
 				text: app.locale_chardownload
-				background_color: 1,0,0,1
+				background_color: .5,.5,.5,1
 				size_hint: 1, .1
 		#right hand side
 		BoxLayout:
@@ -79,7 +79,7 @@ ScreenManager:
 					#Setting Button
 					Button:
 						text: app.locale_settings
-						background_color: 1,0,0,1
+						background_color: .5,.5,.5,1
 						size_hint: 1, .2
 				#Right side of Character Info
 				BoxLayout:
@@ -104,7 +104,7 @@ ScreenManager:
 						size_hint: 1, .2
 						#change screen to chat
 						#screen manager is the parent of the current root - MenuScreen
-						on_press: 
+						on_release: 
 							root.parent.transition.direction = 'left'
 							root.parent.current = 'chat'
 
@@ -130,6 +130,7 @@ ScreenManager:
 			size_hint: 1, .1
 			#Text input
 			TextInput:
+				id: chat_input
 				text: app.chat_input
 				multiline: False
 				size_hint: .6, 1
@@ -140,15 +141,17 @@ ScreenManager:
 				text: app.locale_send
 				background_color: 1,0,0,1
 				size_hint: .1, 1
+				on_release:
+					root.generate_response(chat_input.text)
 			#Redo Message
 			Button:
 				text: app.locale_redo
-				background_color: 1,0,0,1
+				background_color: .5,.5,.5,1
 				size_hint: .1, 1
 			#Access settings from 
 			Button:
 				text: app.locale_settings
-				background_color: 1,0,0,1
+				background_color: .5,.5,.5,1
 				size_hint: .1, 1
 			#Go back to menu
 			Button:
@@ -157,7 +160,7 @@ ScreenManager:
 				size_hint: .1, 1
 				#change screen to menu
 				#screen manager is the parent of the current root - ChatScreen
-				on_press: 
+				on_release: 
 					root.parent.transition.direction = 'right'
 					root.parent.current = 'menu'
 				
