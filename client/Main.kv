@@ -146,8 +146,10 @@ ScreenManager:
 			#Redo Message
 			Button:
 				text: app.locale_redo
-				background_color: .5,.5,.5,1
+				background_color: 1,0,0,1
 				size_hint: .1, 1
+				on_release:
+					root.generate_redo()
 			#Access settings from 
 			Button:
 				text: app.locale_settings

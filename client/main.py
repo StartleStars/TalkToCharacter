@@ -228,6 +228,50 @@ class ChatScreen(Screen):
             #Update chat history
             App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
         pass
+    def generate_redo(self):
+        #A lot of this function is duplicating code from generate_response
+        #Should clean that up
+        App.get_running_app().chat_input = ''
+        maxprefix = config.getint('generate','maxprefix')
+        tokensafterprefix = config.getint('generate','tokensafterprefix')
+        temperature = config.getfloat('generate','temperature')
+        #Need to get dictionary containing the character .ini
+        characterini = App.get_running_app().characterini
+        #Remove last AI line from prefix and message history
+        App.get_running_app().prefixhistory.pop()
+        App.get_running_app().messagehistory.pop()
+        #stack together previous lines to generate the prefix
+        if len(App.get_running_app().prefixhistory) <= maxprefix:
+            prefix = ''.join(App.get_running_app().prefixhistory)
+            prefixlinecount = len(App.get_running_app().prefixhistory)
+        else:
+            prefix = ''.join(App.get_running_app().prefixhistory[-maxprefix:])
+            prefixlinecount = maxprefix
+        #debug contents of prefix
+        print('Prefix:\n' + prefix)
+        #how long does output need to be?
+        length = len(prefix.split()) + tokensafterprefix
+        #prepare to generate
+        success = 0
+        while success == 0:
+            aitext = GenerateLine(characterini["technical"]["characterfolder"],prefix,length,temperature)
+            #debug contents of generated text
+            print('Generated text:\n' + aitext)
+            #Split output into individual lines
+            aitext = aitext.splitlines()
+            #Chop off the prefix
+            aitext = aitext[prefixlinecount:]
+            #Fetch the lines where AI speaks
+            aitext = [i for i in aitext if i.startswith(characterini["technical"]["defaultnametoken"])]
+            #If there is at least one appropriate line, this works
+            if len(aitext) > 0:
+                success = 1
+                #Use the first reply, most likely to be appropriate
+                aitext = aitext[0]
+                App.get_running_app().prefixhistory.append(aitext + '\n')
+                App.get_running_app().messagehistory.append(aitext + '\n')
+        #Update chat history
+        App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
     pass
 
 class MainApp(App):
