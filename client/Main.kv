@@ -114,15 +114,23 @@ ScreenManager:
 		orientation:'vertical'
 		#Chat History
 		ScrollView:
+			id: chat_history_view
 			do_scroll_x: False
 			do_scroll_y: True
-			size_hint: 1, .9
-			Label:
-				text: app.chat_history
-				#need to bind label size to text size
-				text_size: self.width, None
+			size_hint: 1, .5
+			#we need a widget with all the text and an empty widget at the end we scroll to
+			GridLayout:
+				cols: 1
 				size_hint_y: None
-				height: self.texture_size[1]
+				height: self.minimum_height
+				Label:
+					text: app.chat_history
+					#need to bind label size to text size
+					text_size: self.width, None
+					size_hint_y: None
+					height: self.texture_size[1]
+				Label:
+					id: chat_history_bottom
 		#Inputs
 		BoxLayout:
 			padding:10
@@ -136,6 +144,7 @@ ScreenManager:
 				size_hint: .6, 1
 				on_text_validate:
 					root.generate_response(self.text)
+					chat_history_view.scroll_to(chat_history_bottom)
 			#Alternative to pressing enter
 			Button:
 				text: app.locale_send
@@ -143,6 +152,7 @@ ScreenManager:
 				size_hint: .1, 1
 				on_release:
 					root.generate_response(chat_input.text)
+					chat_history_view.scroll_to(chat_history_bottom)
 			#Redo Message
 			Button:
 				text: app.locale_redo
