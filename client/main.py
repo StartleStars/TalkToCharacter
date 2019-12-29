@@ -2,13 +2,15 @@ import platform
 import subprocess
 
 #Initialize config
-from configparser import ConfigParser
-config = ConfigParser()
-config.read('main.ini')
+#Need to use Kivy's modified ConfigParser
+from kivy.config import ConfigParser
+#We won't call this config so it can't be confused with the App's config later
+iniconfig = ConfigParser()
+iniconfig.read('main.ini')
 
-lang = config.get('language','language')
-debug = config.getboolean('debugging','debug')
-requires_avx = config.getboolean('dependencies','requires_avx')
+lang = iniconfig.get('language','language')
+debug = iniconfig.getboolean('debugging','debug')
+requires_avx = iniconfig.getboolean('dependencies','requires_avx')
 
 #Initialize locales
 import gettext
@@ -183,9 +185,11 @@ class ChatScreen(Screen):
         if playerline != '':
             #Clear the player's input now that we've recieved it
             App.get_running_app().chat_input = ''
-            maxprefix = config.getint('generate','maxprefix')
-            tokensafterprefix = config.getint('generate','tokensafterprefix')
-            temperature = config.getfloat('generate','temperature')
+            #Might need to improve how config is retrieved
+            appconfig = App.get_running_app().config
+            maxprefix = appconfig.getint('generate','maxprefix')
+            tokensafterprefix = appconfig.getint('generate','tokensafterprefix')
+            temperature = appconfig.getfloat('generate','temperature')
             #Need to get dictionary containing the character .ini
             characterini = App.get_running_app().characterini
             #Update chat history
@@ -232,9 +236,11 @@ class ChatScreen(Screen):
         #A lot of this function is duplicating code from generate_response
         #Should clean that up
         App.get_running_app().chat_input = ''
-        maxprefix = config.getint('generate','maxprefix')
-        tokensafterprefix = config.getint('generate','tokensafterprefix')
-        temperature = config.getfloat('generate','temperature')
+        #Might need to improve how config is retrieved
+        appconfig = App.get_running_app().config
+        maxprefix = appconfig.getint('generate','maxprefix')
+        tokensafterprefix = appconfig.getint('generate','tokensafterprefix')
+        temperature = appconfig.getfloat('generate','temperature')
         #Need to get dictionary containing the character .ini
         characterini = App.get_running_app().characterini
         #Remove last AI line from prefix and message history
@@ -298,8 +304,38 @@ class MainApp(App):
     messagehistory = []
     characterini = {}
 
+    #Load the config
+    def build_config(self,config):
+        config.setdefaults(
+            'user', {
+                'username': 'User'})
+        config.setdefaults(
+            'generate', {
+                'maxprefix': '10',
+                'temperature': '0.3',
+                'tokensafterprefix': '20'})
+        config.setdefaults(
+            'language', {
+                'langauge': 'en'})
+        config.setdefaults(
+            'debugging', {
+                'debug': 'no'})
+        config.setdefaults(
+            'dependencies', {
+                'requires_avx': 'yes'})
+                
+    #create the settings ui
+    def build_settings(self, settings):
+        settings.add_json_panel('TalkToCharacter', self.config, 'settingpanel.json')
+
+    #build!
     def build(self):
         config = self.config
+
+    #function to print info about the config change
+    def on_config_change(self, config, section, key, value):
+        if config is self.config:
+            print(section + ':' + key + ' has been set to ' + value)
     
     #function to open a specific folder in explorer or cross-platform equivalent
     def open_folder(self, path):

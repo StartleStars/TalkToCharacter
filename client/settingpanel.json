@@ -1,0 +1,40 @@
+[
+	{
+		"type": "title",
+		"title": "User Profile"
+	},
+	{
+		"type": "string",
+		"title": "Username",
+		"desc": "Some AI characters will refer to you by your username",
+		"section": "user",
+		"key": "username"
+	},
+	{
+		"type": "title",
+		"title": "AI Settings"
+	},
+	{
+		"type": "numeric",
+		"title": "Maximum Prefix",
+		"desc": "This is how much of the conversation the AI will remember and consider when generating a new response. A higher value will give more intelligent responses, but can greatly increase time taken to generate a response. Recommended: 10",
+		"section": "generate",
+		"key": "maxprefix"
+	},
+	{
+		"type": "options",
+		"title": "Temperature",
+		"desc": "This controls how unpredictable the responses are. With low values, the AI will favour responding in blunt, obvious ways. With higher values, the AI will give increasingly creative or unusual responses, until it becomes chaotic and unable to form coherent replies. Recommended: 0.3",
+		"section": "generate",
+		"key": "temperature",
+		"options": ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"]
+	},
+	{
+		"type": "numeric",
+		"title": "Tokens After Prefix",
+		"desc": "This controls the approximate number of words that the AI will generate when trying to reply. Low values can cause replies to be cut off. Higher values permit longer replies but slow the AI down. You should set this as low as you can get away with. Recommended: 20",
+		"section": "generate",
+		"key": "tokensafterprefix"
+	}
+]
+	

@@ -79,8 +79,11 @@ ScreenManager:
 					#Setting Button
 					Button:
 						text: app.locale_settings
-						background_color: .5,.5,.5,1
+						background_color: 1,0,0,1
 						size_hint: 1, .2
+						on_release:
+							app.open_settings()
+							
 				#Right side of Character Info
 				BoxLayout:
 					padding:10
@@ -160,11 +163,13 @@ ScreenManager:
 				size_hint: .1, 1
 				on_release:
 					root.generate_redo()
-			#Access settings from 
+			#Access settings during conversation
 			Button:
 				text: app.locale_settings
-				background_color: .5,.5,.5,1
+				background_color: 1,0,0,1
 				size_hint: .1, 1
+				on_release:
+					app.open_settings()
 			#Go back to menu
 			Button:
 				text: app.locale_back
@@ -176,7 +181,6 @@ ScreenManager:
 					root.parent.transition.direction = 'right'
 					root.parent.current = 'menu'
 				
-							
 <SelectableLabel>:
     #Draw a background to indicate selection
     canvas.before:
