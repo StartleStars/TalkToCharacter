@@ -1,5 +1,6 @@
 import platform
 import subprocess
+import pickle
 
 #Initialize config
 #Need to use Kivy's modified ConfigParser
@@ -78,6 +79,8 @@ from kivy.properties import ListProperty
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.textinput import TextInput
+from kivy.factory import Factory
+from kivy.uix.popup import Popup
 
 #import GPT2
 #this MUST be imported after Kivy. See https://github.com/tensorflow/tensorflow/issues/27312
@@ -169,7 +172,15 @@ class ChatScreen(Screen):
             #these files are huge so need seperate thread to load
             #otherwise windows will think the application is not responding
             #UNFINISHED - NEED TO RESEARCH HOW TO DO THIS
-            App.get_running_app().session = LoadModel(characterini["technical"]["characterfolder"])
+            #Do try except in case the character doesn't exist
+            try:
+                App.get_running_app().session = LoadModel(characterini["technical"]["characterfolder"])
+            except:
+                print(_("Error: No character data could be loaded"))
+                App.get_running_app().chat_history = _('Character not loaded, suitable data not found')
+                App.get_running_app().loadedcharacter = "None"
+                App.get_running_app().generic_popup(_('Error'),_('Character not loaded, suitable data not found'),_('Close'))
+                return
             #App.get_running_app().chat_history = characterini["bio"]["charactername"] + _(' has been loaded.')
             #we don't want to reload the same character twice in a row
             App.get_running_app().loadedcharacter = App.get_running_app().selectedcharacter
@@ -178,9 +189,14 @@ class ChatScreen(Screen):
             App.get_running_app().messagehistory.append(characterini["technical"]["defaultnametoken"] + ' Hello ' + characterini["technical"]["defaultuser"] + '!\n')
             App.get_running_app().prefixhistory.append(characterini["technical"]["defaultnametoken"] + ' Hello ' + characterini["technical"]["defaultuser"] + '!\n')
             #Display initial text
-            App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
+            self.update_chat()
 
     def generate_response(self, playerline):
+        #prevent the player from talking to a character that hasn't loaded
+        if App.get_running_app().loadedcharacter == "None":
+            print(_("Error: Trying to send message to a character that doesn't exist"))
+            App.get_running_app().generic_popup(_('Error'),_('Please load a character first'),_('Close'))
+            return
         #ensure a blank line hasn't been sent
         if playerline != '':
             #Clear the player's input now that we've recieved it
@@ -195,7 +211,7 @@ class ChatScreen(Screen):
             #Update chat history
             messageline = characterini["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
             App.get_running_app().messagehistory.append(messageline)
-            App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
+            self.update_chat()
             #Make the program think player is the username
             prefixline = characterini["technical"]["defaultusertoken"] + ' ' + playerline + '\n'
             App.get_running_app().prefixhistory.append(prefixline)
@@ -230,10 +246,15 @@ class ChatScreen(Screen):
                     App.get_running_app().prefixhistory.append(aitext + '\n')
                     App.get_running_app().messagehistory.append(aitext + '\n')
             #Update chat history
-            App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
+            self.update_chat()
         pass
+    
     def generate_redo(self):
         #A lot of this function is duplicating code from generate_response
+        if App.get_running_app().loadedcharacter == "None":
+            print(_("Error: Trying to redo message with a character that doesn't exist"))
+            App.get_running_app().generic_popup(_('Error'),_('Please load a character first'),_('Close'))
+            return
         #Should clean that up
         App.get_running_app().chat_input = ''
         #Might need to improve how config is retrieved
@@ -277,9 +298,25 @@ class ChatScreen(Screen):
                 App.get_running_app().prefixhistory.append(aitext + '\n')
                 App.get_running_app().messagehistory.append(aitext + '\n')
         #Update chat history
-        App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
+        self.update_chat()
     pass
 
+    def update_chat(self):
+        App.get_running_app().chat_history = ''.join(App.get_running_app().messagehistory)
+
+    def save_chat(self):
+        pickle.dump([App.get_running_app().prefixhistory, App.get_running_app().messagehistory], open( "save.p", "wb"))
+        App.get_running_app().generic_popup(_('Notice'),_('Conversation saved as save.p'),_('Close'))
+
+    def load_chat(self):
+        try:
+            App.get_running_app().prefixhistory, App.get_running_app().messagehistory = pickle.load(open( "save.p", "rb"))
+            self.update_chat()
+            App.get_running_app().generic_popup(_('Notice'),_('Loaded save.p'),_('Close'))
+        except:
+            print(_("Error: Could not load the file. Does it even exist?"))
+            App.get_running_app().generic_popup(_('Error'),_('Could not load the saved conversation'),_('Close'))
+            
 class MainApp(App):
     #get locale strings for all text
     locale_menu = StringProperty(_('Menu'))
@@ -292,6 +329,8 @@ class MainApp(App):
     locale_send = StringProperty(_('Send'))
     locale_redo = StringProperty(_('Redo'))
     locale_back = StringProperty(_('Back'))
+    locale_save = StringProperty(_('Save'))
+    locale_load = StringProperty(_('Load'))
     bio_imagesource = StringProperty('./example.png')
     bio_characterbio = StringProperty(_('Character Bio'))
     bio_technical = StringProperty(_('Technical Details'))
@@ -350,6 +389,20 @@ class MainApp(App):
                 print("Could not determine OS for opening folder")
 
     pass
+
+    #function to create a notice popup where the only interaction is to close it
+    def generic_popup(self, title, label, close):
+        #Construct Popup
+        popupcontent = BoxLayout(orientation='vertical')
+        popupcontent.add_widget(Label(text=label))
+        popupbutton = Button(text=close, size_hint = (1,0.2), background_color = (1,0,0,1))
+        popupcontent.add_widget(popupbutton)
+        popup = Popup(title=title,
+                content=popupcontent,
+                size_hint=(None,None), size=(400,400))
+        #have to bind button after the popup has been created
+        popupbutton.bind(on_release=popup.dismiss)
+        popup.open()
 
 if __name__ == '__main__':
     MainApp().run()
