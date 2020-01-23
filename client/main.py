@@ -145,7 +145,7 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
             App.get_running_app().bio_characterbio = dictionary["bio"]["bio"]
             App.get_running_app().bio_imagesource = "./characters/" + dictionary["technical"]["characterfolder"]+"/"+dictionary["bio"]["image"]
             #put together technical details
-            App.get_running_app().bio_technical = "Version: " + dictionary["techinfo"]["version"] + "\nModel: " + dictionary["techinfo"]["modeltype"]
+            App.get_running_app().bio_technical = _("Version: ") + dictionary["techinfo"]["version"] + "\nModel: " + dictionary["techinfo"]["modeltype"]
         else:
             print("selection removed for {0}".format(rv.data[index]))
 
@@ -231,7 +231,7 @@ class ChatScreen(Screen):
             while success == 0:
                 aitext = GenerateLine(characterini["technical"]["characterfolder"],prefix,length,temperature)
                 #debug contents of generated text
-                print('Generated text:\n' + aitext)
+                print(_('Generated text:\n') + aitext)
                 #Split output into individual lines
                 aitext = aitext.splitlines()
                 #Chop off the prefix
@@ -275,7 +275,7 @@ class ChatScreen(Screen):
             prefix = ''.join(App.get_running_app().prefixhistory[-maxprefix:])
             prefixlinecount = maxprefix
         #debug contents of prefix
-        print('Prefix:\n' + prefix)
+        print(_('Prefix:\n') + prefix)
         #how long does output need to be?
         length = len(prefix.split()) + tokensafterprefix
         #prepare to generate
@@ -283,7 +283,7 @@ class ChatScreen(Screen):
         while success == 0:
             aitext = GenerateLine(characterini["technical"]["characterfolder"],prefix,length,temperature)
             #debug contents of generated text
-            print('Generated text:\n' + aitext)
+            print(_('Generated text:\n') + aitext)
             #Split output into individual lines
             aitext = aitext.splitlines()
             #Chop off the prefix
@@ -374,7 +374,7 @@ class MainApp(App):
     #function to print info about the config change
     def on_config_change(self, config, section, key, value):
         if config is self.config:
-            print(section + ':' + key + ' has been set to ' + value)
+            print(section + ':' + key + _(' has been set to ') + value)
     
     #function to open a specific folder in explorer or cross-platform equivalent
     def open_folder(self, path):
@@ -386,7 +386,7 @@ class MainApp(App):
             try:
                 subprocess.Popen(["xdg-open", path])
             except:
-                print("Could not determine OS for opening folder")
+                print(_("Could not determine OS for opening folder"))
 
     pass
 
