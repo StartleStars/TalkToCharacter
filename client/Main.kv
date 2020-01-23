@@ -47,10 +47,10 @@ ScreenManager:
 			padding:10
 			orientation:'vertical'
 			size_hint: .7, 1
-			#feed
-			Label:
-				text: app.locale_feed
-				size_hint: 1, .4
+			#feed (removed until needed)
+			#Label:
+				#text: app.locale_feed
+				#size_hint: 1, .4
 			#Character Info
 			BoxLayout:
 				padding:10
@@ -80,7 +80,7 @@ ScreenManager:
 					Button:
 						text: app.locale_settings
 						background_color: 1,0,0,1
-						size_hint: 1, .2
+						size_hint: 1, .1
 						on_release:
 							app.open_settings()
 							
@@ -104,7 +104,7 @@ ScreenManager:
 					Button:
 						text: app.locale_start
 						background_color: 1,0,0,1
-						size_hint: 1, .2
+						size_hint: 1, .1
 						#change screen to chat
 						#screen manager is the parent of the current root - MenuScreen
 						on_release: 
